@@ -1,10 +1,12 @@
 require('dotenv').config()
 const express = require('express');
 const DB_URL = process.env.DB_URL;
+const JWT_SECRET = process.env.JWT_SECRET;
 var mongoose = require('mongoose')
 const zod = require("zod");
 const { User, Account } = require('../db');
 const  { authMiddleware } = require("../middleware");
+const jwt = require('jsonwebtoken');
 
 mongoose.connect(DB_URL);
 
@@ -42,7 +44,7 @@ router.post("/signup", async (req, res) => {
         firstName: req.body.firstName,
         lastName: req.body.lastName,
     })
-    
+
     const randomBalance = Math.floor(Math.random() * 10000) + 1;
     const userId = user._id;
 

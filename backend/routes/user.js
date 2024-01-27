@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require('express');
 const DB_URL = process.env.DB_URL;
 var mongoose = require('mongoose')
@@ -5,7 +6,7 @@ const zod = require("zod");
 const { User } = require('../db');
 const  { authMiddleware } = require("../middleware");
 
-mongoose.connect(DB_URL+"/paytm");
+mongoose.connect(DB_URL);
 
 const router = express.Router();
 
@@ -118,5 +119,33 @@ router.put("/",authMiddleware ,async (req, res)=>{
 })
 
 // Route to get users from the backend, filterable via firstName/lastName
+router.get('/bulk', async(req, res)=>{
+    const simillarFilter = req.query.filter || "";
+    try {
+        const users = await User.find({
+            $or: [{
+                firstName: {
+                    "$regex": simillarFilter
+                }
+            }, {
+                lastName: {
+                    "$regex": simillarFilter
+                }
+            }]
+        })
+        // const users = await User.find({'firstname': {'$regex': simillarFilter}}).or({'lastname': {'$regex': simillarFilter}});
+        res.json({
+            user: users.map(user => ({
+                username: user.username,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                _id: user._id
+            }))
+        })
+    } catch (error) {
+        console.error("Error fetching users:", error);
+        res.status(500).send("Error fetching users");
+    }
+})
 
 module.exports = router;

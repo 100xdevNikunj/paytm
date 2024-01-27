@@ -3,6 +3,7 @@ const DB_URL = process.env.DB_URL;
 var mongoose = require('mongoose')
 const zod = require("zod");
 const { User } = require('../db');
+const  { authMiddleware } = require("../middleware");
 
 mongoose.connect(DB_URL+"/paytm");
 
@@ -84,5 +85,30 @@ router.post("/signin", async (req, res) => {
     res.status(411).json({
         message: "Error while logging in"
     })
+})
+
+const updateBody = zod.object({
+	password: zod.string().optional(),
+    firstName: zod.string().optional(),
+    lastName: zod.string().optional(),
+})
+
+router.put("/",authMiddleware ,async (req, res)=>{
+    const { success } = updateBody.safeParse(req.body)
+
+    if (!success) {
+        res.status(411).json({
+            message: "Error while updating information"
+        })
+    }
+
+    await User.updateOne(req.body, {
+        _id: req.userId
+    })
+    
+    res.status(200).json({
+        message: "Updated successfully"
+    })
+
 })
 module.exports = router;

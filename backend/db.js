@@ -1,39 +1,39 @@
-var mongoose = require("mongoose");
+// backend/db.js
+const mongoose = require('mongoose');
 
-var UserSchema = new mongoose.Schema(
-  {
+// Create a Schema for Users
+const userSchema = new mongoose.Schema({
     username: {
-      type: String,
-      lowercase: true,
-      required: [true, "can't be blank"],
-      match: [/\S+@\S+\.\S+/, "is invalid"],
-      index: true,
+        type: String,
+        required: true,
+        unique: true,
+        trim: true,
+        lowercase: true,
+        minLength: 3,
+        maxLength: 30
     },
     password: {
-      type: String,
-      required: [true, "can't be blank"],
-      index: true,
+        type: String,
+        required: true,
+        minLength: 6
     },
-    firstname: {
-      type: String,
-      required: true,
-      trim: true,
-      maxLength: 50,
-    },
-    lastname: {
+    firstName: {
         type: String,
         required: true,
         trim: true,
         maxLength: 50
     },
-  },
-  { timestamps: true }
-);
+    lastName: {
+        type: String,
+        required: true,
+        trim: true,
+        maxLength: 50
+    }
+});
 
-UserSchema.plugin(uniqueValidator, { message: "is already taken." });
 // Create a model from the schema
-const User = mongoose.model("User", userSchema);
+const User = mongoose.model('User', userSchema);
 
 module.exports = {
-  User,
+	User
 };

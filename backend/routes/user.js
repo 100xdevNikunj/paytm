@@ -9,6 +9,7 @@ mongoose.connect(DB_URL+"/paytm");
 
 const router = express.Router();
 
+//  Route to sign up
 const signupBody = zod.object({
     username: zod.string().email(),
 	firstName: zod.string(),
@@ -52,6 +53,8 @@ router.post("/signup", async (req, res) => {
     })
 })
 
+// Route to sign in
+
 const signinBody = zod.object({
     username: zod.string().email(),
 	password: zod.string()
@@ -87,6 +90,8 @@ router.post("/signin", async (req, res) => {
     })
 })
 
+// Route to update user information
+
 const updateBody = zod.object({
 	password: zod.string().optional(),
     firstName: zod.string().optional(),
@@ -105,10 +110,13 @@ router.put("/",authMiddleware ,async (req, res)=>{
     await User.updateOne(req.body, {
         _id: req.userId
     })
-    
+
     res.status(200).json({
         message: "Updated successfully"
     })
 
 })
+
+// Route to get users from the backend, filterable via firstName/lastName
+
 module.exports = router;

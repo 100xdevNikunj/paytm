@@ -3,7 +3,7 @@ const express = require('express');
 const DB_URL = process.env.DB_URL;
 var mongoose = require('mongoose')
 const zod = require("zod");
-const { User } = require('../db');
+const { User, Account } = require('../db');
 const  { authMiddleware } = require("../middleware");
 
 mongoose.connect(DB_URL);
@@ -42,7 +42,14 @@ router.post("/signup", async (req, res) => {
         firstName: req.body.firstName,
         lastName: req.body.lastName,
     })
+    
+    const randomBalance = Math.floor(Math.random() * 10000) + 1;
     const userId = user._id;
+
+    const account = await Account.create({
+        userId: userId,
+        balance: randomBalance
+    })
 
     const token = jwt.sign({
         userId

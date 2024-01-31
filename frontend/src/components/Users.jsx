@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Button from "./Button";
 import axios from "axios";
+import { useNavigate } from 'react-router-dom';
 
 function Users() {
     const [users, setUsers] = useState([]);
@@ -41,6 +42,8 @@ function Users() {
 }
 
 function User({ user }) {
+    const navigate = useNavigate();
+
     return (
         <div className="flex items-center justify-between mb-4">
             <div className="flex items-center">
@@ -52,7 +55,9 @@ function User({ user }) {
                 </div>
             </div>
             <div className="flex items-center">
-                <Button value="Send Money" />
+                <Button onClick={(e) => {
+                    navigate("/send?id="+ user._id +"&name="+user.firstName)
+                }} value="Send Money" />
             </div>
         </div>
     );

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 
 function Balance(props) {
   return (
-    <div className="flex">
+    <div className="flex p-6">
         <div className="font-bold text-lg">
             Your balance
         </div>

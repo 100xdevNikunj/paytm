@@ -8,8 +8,8 @@ import BottomWarning  from '../components/BottomWarning';
 
 const Signin = () => {
   return (
-    <div className='bg-slate-300 grid place-items-center h-screen '>
-      <div className='rounded-lg bg-white w-100 text-center p-2 h-max px-4 '>
+    <div className='bg-slate-300 grid place-items-center h-screen'>
+      <div className='rounded-lg bg-white w-100 text-center p-2 h-max px-4'>
         <Heading title={"Sign up"} />
         <Subheading subheading={"Enter your credentials to access your account"} />
         <InputBox label={"Email"} placeholder={"abc@gmail.com"}/>

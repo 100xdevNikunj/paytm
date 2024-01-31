@@ -1,46 +1,61 @@
-import { useState } from "react"
-import Button from "./Button"
+import { useState, useEffect } from "react";
+import Button from "./Button";
+import axios from "axios";
 
-function Users(){
-    // Replace with backend call
-    const [users, setUsers] = useState([{
-        firstName: "Harkirat",
-        lastName: "Singh",
-        _id: 1
-    }]);
+function Users() {
+    const [users, setUsers] = useState([]);
+    const [searchQuery, setSearchQuery] = useState("");
 
-    return <div className="p-6">
-        <div className="font-bold mt-6 text-lg">
-            Users
+    useEffect(() => {
+        const fetchUsers = async () => {
+            try {
+                const response = await axios.get('http://localhost:3000/api/v1/user/bulk', {
+                    params: { filter: searchQuery }
+                });
+                setUsers(response.data.user);
+            } catch (error) {
+                console.error("Error fetching users:", error);
+            }
+        };
+
+        fetchUsers();
+    }, [searchQuery]);
+
+    const handleSearchChange = (e) => {
+        setSearchQuery(e.target.value);
+    };
+
+    return (
+        <div className="p-6">
+            <div className="font-bold mt-6 text-lg">Users</div>
+            <div className="my-2">
+                <input type="text" placeholder="Search users..." className="w-full px-2 py-1 border rounded border-gray-300" onChange={handleSearchChange} />
+            </div>
+            <div>
+                {users.map((user, index) => (
+                    <User key={index} user={user} />
+                ))}
+            </div>
         </div>
-        <div className="my-2">
-            <input type="text" placeholder="Search users..." className="w-full px-2 py-1 border rounded border-slate-200"></input>
-        </div>
-        <div>
-            {users.map(user => <User user={user} />)}
-        </div>
-    </div>
+    );
 }
 
-function User({user}) {
-    return <div className="flex items-center justify-between">
-        <div className="flex">
-            <div className="rounded-full h-12 w-12 bg-slate-200 flex justify-center mt-1 mr-2">
-                <div className="flex flex-col justify-center h-full text-xl">
+function User({ user }) {
+    return (
+        <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center">
+                <div className="rounded-full h-12 w-12 bg-gray-300 flex justify-center items-center text-xl">
                     {user.firstName[0]}
                 </div>
-            </div>
-            <div className="flex flex-col justify-center h-ful">
-                <div>
+                <div className="ml-2">
                     {user.firstName} {user.lastName}
                 </div>
             </div>
+            <div className="flex items-center">
+                <Button value="Send Money" />
+            </div>
         </div>
-
-        <div className="flex flex-col justify-center h-ful">
-            <Button value={"Send Money"} />
-        </div>
-    </div>
+    );
 }
 
 export default Users;

@@ -6,12 +6,14 @@ import InputBox from '../components/InputBox';
 import Button from '../components/Button';
 import BottomWarning  from '../components/BottomWarning';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Signup = () => {
   const [firstName , setfirstname] = useState("");
   const [lastName , setlastname] = useState("");
   const [username , setusername] = useState("");
   const [password , setpassword] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,6 +28,7 @@ const Signup = () => {
   
       if (response.status === 200) {
         localStorage.setItem("token", response.data.token)
+        navigate("/dashboard");
         console.log('Form submitted successfully');
       } else {
         console.error('Error submitting form');

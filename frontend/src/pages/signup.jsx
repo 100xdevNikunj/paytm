@@ -28,7 +28,9 @@ const Signup = () => {
   
       if (response.status === 200) {
         localStorage.setItem("token", response.data.token)
-        navigate("/dashboard");
+        const userId = response.data.user._id;
+        const firstName = response.data.user.firstName;
+        navigate("/dashboard?id="+ userId +"&name="+firstName);
         console.log('Form submitted successfully');
       } else {
         console.error('Error submitting form');

@@ -1,24 +1,27 @@
-/* eslint-disable no-unused-vars */
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Heading from '../components/Heading';
 import Subheading from '../components/Subheading';
 import InputBox from '../components/InputBox';
 import Button from '../components/Button';
-import BottomWarning  from '../components/BottomWarning';
+import BottomWarning from '../components/BottomWarning';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Signup = () => {
   const [firstName , setfirstname] = useState("");
   const [lastName , setlastname] = useState("");
   const [username , setusername] = useState("");
   const [password , setpassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
   
     try {
+      setIsLoading(true);
       const response = await axios.post('http://localhost:3000/api/v1/user/signup', {
         username,
         firstName,
@@ -27,15 +30,24 @@ const Signup = () => {
       });
   
       if (response.status === 200) {
-        localStorage.setItem("token", response.data.token)
-        const userId = response.data.user._id;
-        const firstName = response.data.user.firstName;
-        navigate("/dashboard?id="+ userId +"&name="+firstName);
-        console.log('Form submitted successfully');
+        toast.success('Successfully logged in!', {
+          position: 'top-right',
+        });
+        setTimeout(() => {
+          setIsLoading(false);
+          navigate("/signin");
+        }, 2000);
       } else {
+        toast.error('Error while signing up!', {
+          position: 'top-right',
+        });
         console.error('Error submitting form');
       }
     } catch (error) {
+      toast.error(error.message || 'Error!', {
+        position: 'top-right',
+      });
+      setIsLoading(false);
       console.error('Error submitting form:', error.message);
     }
   };
@@ -50,8 +62,10 @@ const Signup = () => {
         <InputBox onChange={(e) =>{ setusername(e.target.value) }} label={"Email"} placeholder={"abc@gmail.com"}/>
         <InputBox onChange={(e) =>{ setpassword(e.target.value) }} label={"Password"} placeholder={"******"}/>
         <Button onClick={handleSubmit} value={"Submit"}/>
-        <BottomWarning label={"Don't have an account?"} buttonText={"Sign up"} to={"/signup"} />
+        <BottomWarning label={"Already have an account?"} buttonText={"Sign in"} to={"/signin"} />
       </div>
+      {isLoading && <div>Loading...</div>}
+      <ToastContainer />
     </div>
   );
 };

@@ -7,6 +7,7 @@ const zod = require("zod");
 const { User, Account } = require('../db');
 const  { authMiddleware } = require("../middleware");
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 
 mongoose.connect(DB_URL);
 
@@ -28,25 +29,24 @@ router.post("/signup", async (req, res) => {
         })
     }
 
-    const existingUser = await User.findOne({
-        username: req.body.username
-    })
+    try {
+        const existingUser = await User.findOne({ username: req.body.username });
+        if (existingUser) {
+            return res.status(411).json({
+                message: "Email already taken/Incorrect inputs"
+            })
+        }
 
-    if (existingUser) {
-        return res.status(411).json({
-            message: "Email already taken/Incorrect inputs"
+        const hashedPassword = await bcrypt.hash(req.body.password, 10);
+        const user = await User.create({
+            username: req.body.username,
+            password: hashedPassword,
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
         })
-    }
 
-    const user = await User.create({
-        username: req.body.username,
-        password: req.body.password,
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-    })
-
-    const randomBalance = Math.floor(Math.random() * 10000) + 1;
-    const userId = user._id;
+        const randomBalance = Math.floor(Math.random() * 10000) + 1;
+        const userId = user._id;
 
     const account = await Account.create({
         userId: userId,
@@ -62,6 +62,9 @@ router.post("/signup", async (req, res) => {
         user: user,
         token: token
     })
+    }catch(e){
+        console.error(e)
+    }
 })
 
 // Route to sign in
@@ -79,27 +82,34 @@ router.post("/signin", async (req, res) => {
         })
     }
 
-    const user = await User.findOne({
-        username: req.body.username,
-        password: req.body.password
-    });
-
-    if (user) {
+    try {
+        const { username, password } = req.body;
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        const passwordMatch = await bcrypt.compare(password, user.password);
+        if (!passwordMatch) {
+            return res.status(401).json({ message: "Invalid username or password" });
+        }
+        if(user && passwordMatch){
         const token = jwt.sign({
             userId: user._id
         }, JWT_SECRET);
   
         res.json({
-            token: token
+            token: token,
+            user
         })
         return;
     }
-
-    
-    res.status(411).json({
-        message: "Error while logging in"
-    })
-})
+    } catch (error) {
+        console.error("Error while logging in:", error);
+        res.status(500).json({
+            message: "Internal server error"
+        });
+    }
+});
 
 // Route to update user information
 
